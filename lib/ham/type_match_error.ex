@@ -1,21 +1,27 @@
-defmodule Hammox.TypeMatchError do
+defmodule Ham.TypeMatchError do
   @moduledoc """
-  An error thrown when Hammox detects that values in a function call don't
+  An error thrown when Ham detects that values in a function call don't
   match types defined in typespecs.
   """
-  defexception [:message]
+  defexception [:reasons]
+  @type t :: %__MODULE__{}
 
-  alias Hammox.Utils
+  alias Ham.Utils
 
-  @impl true
-  def exception({:error, reasons}) do
-    %__MODULE__{
-      message: "\n" <> message_string(reasons)
-    }
+  @impl Exception
+  def exception({:error, reasons}), do: %__MODULE__{reasons: reasons}
+
+  @impl Exception
+  def message(exception) do
+    message_string(exception.reasons)
+  end
+
+  def translate(exception) when is_struct(exception, __MODULE__) do
+    Enum.map(exception.reasons, &human_reason/1)
   end
 
   defp human_reason({:arg_type_mismatch, index, value, type}) do
-    "#{Ordinal.ordinalize(index + 1)} argument value #{inspect(value)} does not match #{Ordinal.ordinalize(index + 1)} parameter's type #{type_to_string(type)}."
+    "#{Utils.ordinalize(index + 1)} argument value #{inspect(value)} does not match #{Utils.ordinalize(index + 1)} parameter's type #{type_to_string(type)}."
   end
 
   defp human_reason({:return_type_mismatch, value, type}) do
@@ -23,7 +29,7 @@ defmodule Hammox.TypeMatchError do
   end
 
   defp human_reason({:tuple_elem_type_mismatch, index, elem, elem_type}) do
-    "#{Ordinal.ordinalize(index + 1)} tuple element #{inspect(elem)} does not match #{Ordinal.ordinalize(index + 1)} element type #{type_to_string(elem_type)}."
+    "#{Utils.ordinalize(index + 1)} tuple element #{inspect(elem)} does not match #{Utils.ordinalize(index + 1)} element type #{type_to_string(elem_type)}."
   end
 
   defp human_reason({:elem_type_mismatch, index, elem, elem_type}) do

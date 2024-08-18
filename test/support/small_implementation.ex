@@ -1,20 +1,12 @@
-defmodule Hammox.Test.SmallImplementation do
+defmodule Ham.Test.SmallImplementation do
   @moduledoc false
 
-  @behaviour Hammox.Test.SmallBehaviour
-  def foo do
-    :bar
-  end
+  @behaviour Ham.Test.SmallBehaviour
+  def foo, do: 1
 
-  def other_foo do
-    1
-  end
+  def other_foo, do: 1
 
-  def other_foo(_) do
-    1
-  end
+  def other_foo(_), do: 1
 
-  def nospec_fun do
-    1
-  end
+  def nospec_fun, do: 1
 end

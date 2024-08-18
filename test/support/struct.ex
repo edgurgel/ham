@@ -1,4 +1,4 @@
-defmodule Hammox.Test.Struct do
+defmodule Ham.Test.Struct do
   @moduledoc false
 
   defstruct [:foo]

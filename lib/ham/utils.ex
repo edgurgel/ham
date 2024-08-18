@@ -1,4 +1,4 @@
-defmodule Hammox.Utils do
+defmodule Ham.Utils do
   @moduledoc false
 
   def module_to_string(module_name) do
@@ -42,4 +42,25 @@ defmodule Hammox.Utils do
   def check_module_exists(module) do
     Code.ensure_compiled!(module)
   end
+
+  # ordinalize is originally from the Ordinal package
+  # https://github.com/andrewhao/ordinal
+  # Copyright (c) 2018 Andrew Hao
+  @spec ordinalize(integer()) :: String.t()
+  def ordinalize(number) when is_integer(number) and number >= 0 do
+    [to_string(number), suffix(number)]
+    |> IO.iodata_to_binary()
+  end
+
+  def ordinalize(number), do: number
+
+  defp suffix(num) when is_integer(num) and num > 100,
+    do: rem(num, 100) |> suffix()
+
+  defp suffix(num) when num in 11..13, do: "th"
+  defp suffix(num) when num > 10, do: rem(num, 10) |> suffix()
+  defp suffix(1), do: "st"
+  defp suffix(2), do: "nd"
+  defp suffix(3), do: "rd"
+  defp suffix(_), do: "th"
 end

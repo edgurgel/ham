@@ -1,30 +1,28 @@
-defmodule Hammox.MixProject do
+defmodule Ham.MixProject do
   use Mix.Project
 
-  @source_url "https://github.com/msz/hammox"
-  @version "0.7.0"
+  @source_url "https://github.com/edgurgel/ham"
+  @version "0.1.0"
 
   def project do
     [
-      app: :hammox,
+      app: :ham,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.16",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
 
       # Docs
-      name: "Hammox",
+      name: "Ham",
       docs: docs(),
       package: package()
     ]
   end
 
   def application do
-    [
-      extra_applications: [:logger]
-    ]
+    []
   end
 
   defp aliases do
@@ -35,25 +33,23 @@ defmodule Hammox.MixProject do
 
   defp deps do
     [
-      {:mox, "~> 1.0"},
-      {:ordinal, "~> 0.1"},
-      {:telemetry, "~> 1.0"},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
   end
 
   defp package do
     [
-      description: "Automated contract testing for functions and mocks.",
+      description: "Runtime Type checking",
       licenses: ["Apache-2.0"],
       maintainers: [
-        "Michał Szewczak"
+        "Eduardo Gurgel"
       ],
       files: ["lib", "mix.exs", "LICENSE", "README.md"],
       links: %{
         "GitHub" => @source_url,
-        "Mox" => "https://hex.pm/packages/mox"
+        "Mox" => "https://hex.pm/packages/ham"
       }
     ]
   end

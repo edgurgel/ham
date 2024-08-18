@@ -1,4 +1,4 @@
-defmodule Hammox.Test.Behaviour do
+defmodule Ham.Test.Behaviour do
   @moduledoc false
 
   @callback foo_any() :: any()
@@ -26,7 +26,7 @@ defmodule Hammox.Test.Behaviour do
   @callback foo_bitstring_size_literal() :: <<_::3>>
   @callback foo_bitstring_unit_literal() :: <<_::_*3>>
   @callback foo_bitstring_size_unit_literal() :: <<_::2, _::_*3>>
-  @callback foo_nullary_function_literal() :: (() -> :ok)
+  @callback foo_nullary_function_literal() :: (-> :ok)
   @callback foo_binary_function_literal() :: (:a, :b -> :ok)
   @callback foo_any_arity_function_literal() :: (... -> :ok)
   @callback foo_integer_literal() :: 1
@@ -53,8 +53,8 @@ defmodule Hammox.Test.Behaviour do
               :__struct__ => atom(),
               key: number()
             }
-  @callback foo_struct_literal() :: %Hammox.Test.Struct{}
-  @callback foo_struct_fields_literal() :: %Hammox.Test.Struct{foo: number()}
+  @callback foo_struct_literal() :: %Ham.Test.Struct{}
+  @callback foo_struct_fields_literal() :: %Ham.Test.Struct{foo: number()}
   @callback foo_empty_tuple_literal() :: {}
   @callback foo_two_tuple_literal() :: {:ok, atom()}
 
@@ -87,21 +87,21 @@ defmodule Hammox.Test.Behaviour do
   @callback foo_node :: atom()
   @callback foo_timeout :: timeout()
 
-  @callback foo_remote_type :: Hammox.Test.Struct.my_list()
-  @callback foo_remote_type_with_arg :: Hammox.Test.Struct.my_list(number())
-  @callback foo_nonexistent_remote_module :: Hammox.Test.NonexistentStruct.my_list()
-  @callback foo_nonexistent_remote_type :: Hammox.Test.Struct.nonexistent_type()
+  @callback foo_remote_type :: Ham.Test.Struct.my_list()
+  @callback foo_remote_type_with_arg :: Ham.Test.Struct.my_list(number())
+  @callback foo_nonexistent_remote_module :: Ham.Test.NonexistentStruct.my_list()
+  @callback foo_nonexistent_remote_type :: Ham.Test.Struct.nonexistent_type()
   @callback foo_protocol_remote_type :: Enumerable.t()
 
   @callback foo_no_arg() :: :ok
   @callback foo_unnamed_arg(atom()) :: :ok
   @callback foo_named_arg(arg1 :: atom()) :: :ok
   @callback foo_named_and_unnamed_arg(atom(), arg2 :: number()) :: :ok
-  @callback foo_remote_type_arg(Hammox.Test.Struct.my_list()) :: :ok
+  @callback foo_remote_type_arg(Ham.Test.Struct.my_list()) :: :ok
 
-  @callback foo_user_type() :: Hammox.Test.Struct.my_type_user()
+  @callback foo_user_type() :: Ham.Test.Struct.my_type_user()
   @type type_from_behaviour :: :foo_type
-  @callback foo_behaviour_user_type :: type_from_behaviour()
+  @callback foo_module_user_type :: type_from_behaviour()
   @callback foo_ann_type_user_type(arg :: type_from_behaviour) :: :ok
 
   @callback foo_annotated_return_type() :: return_value :: :return_type
@@ -113,7 +113,7 @@ defmodule Hammox.Test.Behaviour do
   @callback foo_multiple_typespec(arg :: :a) :: :a
   @callback foo_multiple_typespec(arg :: :b) :: :b
 
-  @callback foo_remote_param_type() :: Hammox.Test.Struct.ok(local())
+  @callback foo_remote_param_type() :: Ham.Test.Struct.ok(local())
 
   @type local :: :local
 

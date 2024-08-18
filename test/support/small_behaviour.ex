@@ -1,4 +1,4 @@
-defmodule Hammox.Test.SmallBehaviour do
+defmodule Ham.Test.SmallBehaviour do
   @moduledoc false
 
   @callback foo() :: number()

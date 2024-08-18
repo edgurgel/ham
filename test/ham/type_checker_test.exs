@@ -1,100 +1,52 @@
-defmodule HammoxTest do
+defmodule Ham.TypeCheckerTest do
   use ExUnit.Case, async: true
+  alias Ham.TypeChecker
 
-  import Hammox
+  alias Ham.Test.{
+    AdditionalBehaviour,
+    Behaviour,
+    Impl,
+    MultiBehaviourImplementation,
+    SmallBehaviour,
+    TestModule
+  }
 
-  defmock(TestMock, for: Hammox.Test.Behaviour)
-
-  describe "protect/1" do
-    test "decorate all functions inside the module" do
-      assert %{other_foo_0: _, other_foo_1: _, foo_0: _} =
-               Hammox.protect(Hammox.Test.BehaviourImplementation)
+  describe "validate/4" do
+    test "valid type" do
+      assert :ok = TypeChecker.validate(TestModule, :sum, [1, 2], 3)
     end
 
-    test "decorates the function designated by the MFA tuple" do
-      fun = Hammox.protect({Hammox.Test.BehaviourImplementation, :foo, 0})
-      assert_raise(Hammox.TypeMatchError, fn -> fun.() end)
-    end
-  end
-
-  describe "protect/2" do
-    test "returns function protected from contract errors" do
-      fun = Hammox.protect({Hammox.Test.SmallImplementation, :foo, 0}, Hammox.Test.SmallBehaviour)
-      assert_raise(Hammox.TypeMatchError, fn -> fun.() end)
-    end
-
-    test "throws when typespec does not exist" do
-      assert_raise(Hammox.TypespecNotFoundError, fn ->
-        Hammox.protect(
-          {Hammox.Test.SmallImplementation, :nospec_fun, 0},
-          Hammox.Test.SmallBehaviour
-        )
-      end)
-    end
-
-    test "throws when behaviour module does not exist" do
-      assert_raise(ArgumentError, fn ->
-        Hammox.protect(
-          {Hammox.Test.SmallImplementation, :foo, 0},
-          NotExistModule
-        )
-      end)
-    end
-
-    test "throws when implementation module does not exist" do
-      assert_raise(ArgumentError, fn ->
-        Hammox.protect(
-          {NotExistModule, :foo, 0},
-          Hammox.Test.SmallBehaviour
-        )
-      end)
-    end
-
-    test "throws when implementation function does not exist" do
-      assert_raise(ArgumentError, fn ->
-        Hammox.protect(
-          {Hammox.Test.SmallImplementation, :nonexistent_fun, 0},
-          Hammox.Test.SmallBehaviour
-        )
-      end)
-    end
-
-    test "decorate multiple functions inside behaviour-implementation module" do
-      assert %{foo_0: _, other_foo_1: _} =
-               Hammox.protect(Hammox.Test.BehaviourImplementation,
-                 foo: 0,
-                 other_foo: 1
-               )
-    end
-
-    test "decorate all functions" do
-      assert %{foo_0: _, other_foo_0: _, other_foo_1: _} =
-               Hammox.protect(Hammox.Test.SmallImplementation, Hammox.Test.SmallBehaviour)
-    end
-
-    test "decorate all functions from multiple behaviours" do
-      assert %{foo_0: _, other_foo_0: _, other_foo_1: _, additional_foo_0: _} =
-               Hammox.protect(Hammox.Test.MultiBehaviourImplementation, [
-                 Hammox.Test.SmallBehaviour,
-                 Hammox.Test.AdditionalBehaviour
+    test "valid behaviour type" do
+      assert :ok =
+               TypeChecker.validate(MultiBehaviourImplementation, :other_foo, [1], 3, [
+                 SmallBehaviour
                ])
     end
-  end
 
-  describe "protect/3" do
-    test "returns setup_all friendly map" do
-      assert %{foo_0: _, other_foo_1: _} =
-               Hammox.protect(Hammox.Test.SmallImplementation, Hammox.Test.SmallBehaviour,
-                 foo: 0,
-                 other_foo: 1
-               )
+    test "invalid type" do
+      assert {:error, error} = TypeChecker.validate(TestModule, :sum, ["a", 2], :not_ok)
+
+      assert Ham.TypeMatchError.translate(error) == [
+               "1st argument value \"a\" does not match 1st parameter's type number().",
+               "Value \"a\" does not match type integer() | float().",
+               "Returned value :not_ok does not match type number().",
+               "Value :not_ok does not match type integer() | float()."
+             ]
     end
 
-    test "works with arity arrays" do
-      assert %{other_foo_0: _, other_foo_1: _} =
-               Hammox.protect(Hammox.Test.SmallImplementation, Hammox.Test.SmallBehaviour,
-                 other_foo: [0, 1]
-               )
+    test "unknown type" do
+      assert {:error, error} = TypeChecker.validate(EstModule, :unknown, ["a", 2], :not_ok)
+
+      assert Ham.TypeMatchError.translate(error) == ["Could not load module EstModule."]
+    end
+
+    test "unknown behaviour type" do
+      assert {:error, error} =
+               TypeChecker.validate(MultiBehaviourImplementation, :other_foo, [1], 3, [
+                 UnknownBehaviour
+               ])
+
+      assert Ham.TypeMatchError.translate(error) == ["Could not load module UnknownBehaviour."]
     end
   end
 
@@ -150,7 +102,7 @@ defmodule HammoxTest do
 
   describe "pid()" do
     test "pass" do
-      assert_pass(:foo_pid, spawn(fn -> nil end))
+      assert_pass(:foo_pid, self())
     end
 
     test "fail" do
@@ -181,7 +133,7 @@ defmodule HammoxTest do
 
   describe "struct()" do
     test "pass" do
-      assert_pass(:foo_struct, %Hammox.Test.Struct{foo: :bar})
+      assert_pass(:foo_struct, %Ham.Test.Struct{foo: :bar})
     end
 
     test "fail" do
@@ -675,15 +627,15 @@ defmodule HammoxTest do
     end
 
     test "fail different struct" do
-      assert_fail(:foo_struct_literal, %Hammox.Test.OtherStruct{})
+      assert_fail(:foo_struct_literal, %Ham.Test.OtherStruct{})
     end
 
     test "pass default struct" do
-      assert_pass(:foo_struct_literal, %Hammox.Test.Struct{})
+      assert_pass(:foo_struct_literal, %Ham.Test.Struct{})
     end
 
     test "pass struct with fields" do
-      assert_pass(:foo_struct_literal, %Hammox.Test.Struct{foo: 1})
+      assert_pass(:foo_struct_literal, %Ham.Test.Struct{foo: 1})
     end
   end
 
@@ -693,15 +645,15 @@ defmodule HammoxTest do
     end
 
     test "fail default struct" do
-      assert_fail(:foo_struct_fields_literal, %Hammox.Test.Struct{})
+      assert_fail(:foo_struct_fields_literal, %Ham.Test.Struct{})
     end
 
     test "pass struct with correct fields" do
-      assert_pass(:foo_struct_fields_literal, %Hammox.Test.Struct{foo: 1})
+      assert_pass(:foo_struct_fields_literal, %Ham.Test.Struct{foo: 1})
     end
 
     test "fail struct with incorrect fields" do
-      assert_fail(:foo_struct_fields_literal, %Hammox.Test.Struct{foo: "bar"})
+      assert_fail(:foo_struct_fields_literal, %Ham.Test.Struct{foo: "bar"})
     end
   end
 
@@ -885,7 +837,7 @@ defmodule HammoxTest do
 
   describe "identifier()" do
     test "pass pid" do
-      assert_pass(:foo_identifier, spawn(fn -> nil end))
+      assert_pass(:foo_identifier, self())
     end
 
     test "pass port" do
@@ -1126,29 +1078,24 @@ defmodule HammoxTest do
     end
   end
 
-  describe "user type defined in behaviour" do
+  describe "user type defined in module" do
     test "pass" do
-      assert_pass(:foo_behaviour_user_type, :foo_type)
+      assert_pass(:foo_module_user_type, :foo_type)
     end
 
     test "fail" do
-      assert_fail(:foo_behaviour_user_type, :other_type)
+      assert_fail(:foo_module_user_type, :other_type)
     end
   end
 
   describe "user type as annotated param" do
     test "pass" do
-      TestMock |> expect(:foo_ann_type_user_type, fn _ -> :ok end)
-      assert :ok == TestMock.foo_ann_type_user_type(:foo_type)
+      assert_pass(:foo_ann_type_user_type, [:foo_type], :ok)
     end
 
     test "fail" do
-      TestMock |> expect(:foo_ann_type_user_type, fn _ -> :ok end)
-
-      assert_raise(
-        Hammox.TypeMatchError,
-        fn -> TestMock.foo_ann_type_user_type(:other_type) end
-      )
+      assert_fail(:foo_ann_type_user_type, [:foo_type_wrong], :ok)
+      assert_fail(:foo_ann_type_user_type, [:foo_type], :not_ok)
     end
   end
 
@@ -1184,75 +1131,64 @@ defmodule HammoxTest do
 
   describe "arg type checking" do
     test "no args pass" do
-      TestMock |> expect(:foo_no_arg, fn -> :ok end)
-      assert :ok == TestMock.foo_no_arg()
+      assert_pass(:foo_no_arg, :ok)
     end
 
     test "unnamed arg pass" do
-      TestMock |> expect(:foo_unnamed_arg, fn _arg -> :ok end)
-      assert :ok == TestMock.foo_unnamed_arg(:bar)
+      assert_pass(:foo_unnamed_arg, [:bar], :ok)
     end
 
     test "unnamed arg fail" do
-      TestMock |> expect(:foo_unnamed_arg, fn _arg -> :ok end)
-
-      assert_raise(
-        Hammox.TypeMatchError,
-        ~r/1st argument value "bar" does not match 1st parameter's type atom()./,
-        fn -> TestMock.foo_unnamed_arg("bar") end
+      assert_fail(
+        :foo_unnamed_arg,
+        ["bar"],
+        :ok,
+        ~r/1st argument value "bar" does not match 1st parameter's type atom()./
       )
     end
 
     test "named arg pass" do
-      TestMock |> expect(:foo_named_arg, fn _arg -> :ok end)
-      assert :ok == TestMock.foo_named_arg(:bar)
+      assert_pass(:foo_named_arg, [:bar], :ok)
     end
 
     test "named arg fail" do
-      TestMock |> expect(:foo_named_arg, fn _arg -> :ok end)
-
-      assert_raise(
-        Hammox.TypeMatchError,
-        ~r/1st argument value "bar" does not match 1st parameter's type atom\(\) \("arg1"\)/,
-        fn -> TestMock.foo_named_arg("bar") end
+      assert_fail(
+        :foo_named_arg,
+        ["bar"],
+        :ok,
+        ~r/1st argument value "bar" does not match 1st parameter's type atom\(\) \("arg1"\)/
       )
     end
 
     test "named and unnamed arg pass" do
-      TestMock |> expect(:foo_named_and_unnamed_arg, fn _arg1, _arg2 -> :ok end)
-      assert :ok == TestMock.foo_named_and_unnamed_arg(:bar, 1)
+      assert_pass(:foo_named_and_unnamed_arg, [:bar, 1], :ok)
     end
 
     test "named and unnamed arg fail" do
-      TestMock |> expect(:foo_named_and_unnamed_arg, fn _arg1, _arg2 -> :ok end)
-
-      assert_raise(
-        Hammox.TypeMatchError,
-        ~r/2nd argument value "baz" does not match 2nd parameter's type number\(\) \("arg2"\)/,
-        fn -> TestMock.foo_named_and_unnamed_arg(:bar, "baz") end
+      assert_fail(
+        :foo_named_and_unnamed_arg,
+        [:bar, "baz"],
+        :ok,
+        ~r/2nd argument value "baz" does not match 2nd parameter's type number\(\) \("arg2"\)/
       )
     end
 
     test "remote type arg pass" do
-      TestMock |> expect(:foo_remote_type_arg, fn _ -> :ok end)
-      assert :ok == TestMock.foo_remote_type_arg([])
+      assert_pass(:foo_remote_type_arg, [[]], :ok)
     end
   end
 
   describe "multiple typespec for one function" do
     test "passes first typespec" do
-      TestMock |> expect(:foo_multiple_typespec, fn _ -> :a end)
-      assert :a == TestMock.foo_multiple_typespec(:a)
+      assert_pass(:foo_multiple_typespec, [:a], :a)
     end
 
     test "passes second typespec" do
-      TestMock |> expect(:foo_multiple_typespec, fn _ -> :b end)
-      assert :b == TestMock.foo_multiple_typespec(:b)
+      assert_pass(:foo_multiple_typespec, [:b], :b)
     end
 
     test "fails mix of typespecs" do
-      TestMock |> expect(:foo_multiple_typespec, fn _ -> :b end)
-      assert_raise Hammox.TypeMatchError, fn -> TestMock.foo_multiple_typespec(:a) end
+      assert_fail(:foo_multiple_typespec, [:a], :b)
     end
   end
 
@@ -1294,46 +1230,78 @@ defmodule HammoxTest do
 
   describe "guarded functions" do
     test "pass" do
-      TestMock |> expect(:foo_guarded, fn arg -> [arg] end)
-      assert [1] == TestMock.foo_guarded(1)
+      assert_pass(:foo_guarded, [1], [1])
     end
 
     test "fail" do
-      TestMock |> expect(:foo_guarded, fn _ -> 1 end)
-      assert_raise(Hammox.TypeMatchError, fn -> TestMock.foo_guarded(1) end)
+      assert_fail(:foo_guarded, [1], 1)
     end
   end
 
-  describe "expect/4" do
-    test "protects mocks" do
-      TestMock |> expect(:foo_none, fn -> :baz end)
-      assert_raise(Hammox.TypeMatchError, fn -> TestMock.foo_none() end)
+  describe "module with multiple behaviours" do
+    test "pass" do
+      assert :ok =
+               TypeChecker.validate(Impl, :other_foo, [456], 123, [
+                 AdditionalBehaviour,
+                 SmallBehaviour
+               ])
+
+      assert :ok =
+               TypeChecker.validate(Impl, :additional_foo, [], 123, [
+                 AdditionalBehaviour,
+                 SmallBehaviour
+               ])
+
+      assert :ok =
+               TypeChecker.validate(Impl, :nospec_fun, [], 1, [
+                 AdditionalBehaviour,
+                 SmallBehaviour
+               ])
+    end
+
+    test "fail" do
+      assert {:error, error} =
+               TypeChecker.validate(Impl, :other_foo, ["binary"], :not_a_number, [
+                 AdditionalBehaviour,
+                 SmallBehaviour
+               ])
+
+      message = Ham.TypeMatchError.message(error)
+      assert Regex.match?(~r/"binary" does not match 1st parameter's type number/, message)
+      assert Regex.match?(~r/:not_a_number does not match type number/, message)
     end
   end
 
-  describe "stub/3" do
-    test "protects stubs" do
-      TestMock |> stub(:foo_none, fn -> :baz end)
-      assert_raise(Hammox.TypeMatchError, fn -> TestMock.foo_none() end)
-    end
+  test "nospec" do
+    assert_pass(:nospec_fun, [], :ok)
   end
 
-  defp assert_pass(function_name, value) do
-    TestMock |> expect(function_name, fn -> value end)
-    result = apply(TestMock, function_name, [])
-    assert value == result
+  defp assert_pass(function_name, args \\ [], return_value) do
+    assert :ok = TypeChecker.validate(TestModule, function_name, args, return_value)
+
+    assert :ok = TypeChecker.validate(Impl, function_name, args, return_value, [Behaviour])
   end
 
-  defp assert_fail(function_name, value) do
-    TestMock |> expect(function_name, fn -> value end)
-    assert_raise(Hammox.TypeMatchError, fn -> apply(TestMock, function_name, []) end)
+  defp assert_fail(function_name, return_value), do: assert_fail(function_name, [], return_value)
+
+  defp assert_fail(function_name, args, return_value) when is_list(args) do
+    assert {:error, _error} =
+             TypeChecker.validate(TestModule, function_name, args, return_value)
+
+    assert {:error, _error} =
+             TypeChecker.validate(TestModule, function_name, args, return_value, [Behaviour])
   end
 
-  defp assert_fail(function_name, value, expected_message) do
-    TestMock |> expect(function_name, fn -> value end)
+  defp assert_fail(function_name, return_value, expected_message)
+       when is_struct(expected_message, Regex) do
+    assert_fail(function_name, [], return_value, expected_message)
+  end
 
-    assert_raise(Hammox.TypeMatchError, expected_message, fn ->
-      apply(TestMock, function_name, [])
-    end)
+  defp assert_fail(function_name, args, return_value, expected_message) do
+    assert {:error, error} =
+             TypeChecker.validate(TestModule, function_name, args, return_value)
+
+    message = Ham.TypeMatchError.message(error)
+    assert Regex.match?(expected_message, message)
   end
 end
