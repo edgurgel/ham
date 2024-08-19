@@ -1,7 +1,7 @@
 # Ham
 
 [![CI](https://github.com/edgurgel/ham/actions/workflows/ci.yml/badge.svg)](https://github.com/edgurgel/ham/actions/workflows/ci.yml)
-[![Module Version](https://img.shields.io/hexpm/v/edgurgel.svg)](https://hex.pm/packages/ham)
+[![Module Version](https://img.shields.io/hexpm/v/ham.svg)](https://hex.pm/packages/ham)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ham)
 [![Total Download](https://img.shields.io/hexpm/dt/ham.svg)](https://hex.pm/packages/ham)
 [![License](https://img.shields.io/hexpm/l/ham.svg)](https://github.com/edgurgel/ham/blob/main/LICENSE)
