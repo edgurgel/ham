@@ -63,4 +63,38 @@ defmodule Ham.Utils do
   defp suffix(2), do: "nd"
   defp suffix(3), do: "rd"
   defp suffix(_), do: "th"
+
+  def type_to_string({:type, _, :map_field_exact, [type1, type2]}) do
+    "required(#{type_to_string(type1)}) => #{type_to_string(type2)}"
+  end
+
+  def type_to_string({:type, _, :map_field_assoc, [type1, type2]}) do
+    "optional(#{type_to_string(type1)}) => #{type_to_string(type2)}"
+  end
+
+  def type_to_string(type) do
+    # We really want to access Code.Typespec.typespec_to_quoted/1 here but it's
+    # private... this hack needs to suffice.
+    macro =
+      {:foo, type, []}
+      |> Code.Typespec.type_to_quoted()
+
+    macro
+    |> Macro.to_string()
+    |> String.split("\n")
+    |> Enum.map_join(&String.replace(&1, ~r/ +/, " "))
+    |> String.split(" :: ", parts: type_parts(macro))
+    |> case do
+      [_foo, type_string] -> type_string
+      [_foo, type_name, type_string] -> "#{type_string} (\"#{type_name}\")"
+    end
+  end
+
+  defp type_parts(macro) do
+    case macro do
+      # The type has a name
+      {:"::", [], [{:foo, [], []}, {:"::", _, _}]} -> 3
+      _ -> 2
+    end
+  end
 end

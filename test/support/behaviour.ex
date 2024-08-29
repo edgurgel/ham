@@ -134,4 +134,6 @@ defmodule Ham.Test.Behaviour do
   @callback foo_opaque_type() :: opaque_type
 
   @callback foo_guarded(arg) :: [arg] when arg: integer()
+
+  @callback map_type_with_underscore() :: :test.req()
 end
