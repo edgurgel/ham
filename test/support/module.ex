@@ -240,4 +240,17 @@ defmodule Ham.Test.TestModule do
   def foo_guarded(_arg), do: [1]
 
   def nospec_fun, do: :ok
+
+  @spec map_type_with_underscore() :: :test.req()
+  def map_type_with_underscore, do: %{method: "GET"}
+
+  @type complex :: {:ok, binary(), req :: binary()} | {:more, binary(), req :: binary()}
+  @type complex_annotated ::
+          result :: {:ok, binary(), req :: binary()} | {:more, binary(), req :: binary()}
+
+  @spec foo_multiple_options_annotated :: complex_annotated
+  def foo_multiple_options_annotated, do: {:ok, "a", "b"}
+
+  @spec foo_multiple_options :: complex
+  def foo_multiple_options, do: {:ok, "a", "b"}
 end

@@ -1272,6 +1272,21 @@ defmodule Ham.TypeCheckerTest do
     end
   end
 
+  describe "multiple options" do
+    test "pass" do
+      assert_pass(:foo_multiple_options_annotated, [], {:ok, "a", "b"})
+    end
+
+    test "fail" do
+      assert_fail(
+        :foo_multiple_options_annotated,
+        [],
+        :ok,
+        ~r/type \{:ok, binary\(\), req :: binary\(\)\} | \{:more, binary\(\), req :: binary\(\)\} \("result"\)/
+      )
+    end
+  end
+
   test "nospec" do
     assert_pass(:nospec_fun, [], :ok)
   end

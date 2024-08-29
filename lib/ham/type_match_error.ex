@@ -4,9 +4,11 @@ defmodule Ham.TypeMatchError do
   match types defined in typespecs.
   """
   defexception [:reasons]
+
   @type t :: %__MODULE__{}
 
   alias Ham.Utils
+  import Ham.Utils, only: [type_to_string: 1]
 
   @impl Exception
   def exception({:error, reasons}), do: %__MODULE__{reasons: reasons}
@@ -122,28 +124,5 @@ defmodule Ham.TypeMatchError do
       |> Enum.join()
 
     padding <> string
-  end
-
-  defp type_to_string({:type, _, :map_field_exact, [type1, type2]}) do
-    "required(#{type_to_string(type1)}) => #{type_to_string(type2)}"
-  end
-
-  defp type_to_string({:type, _, :map_field_assoc, [type1, type2]}) do
-    "optional(#{type_to_string(type1)}) => #{type_to_string(type2)}"
-  end
-
-  defp type_to_string(type) do
-    # We really want to access Code.Typespec.typespec_to_quoted/1 here but it's
-    # private... this hack needs to suffice.
-    {:foo, type, []}
-    |> Code.Typespec.type_to_quoted()
-    |> Macro.to_string()
-    |> String.split("\n")
-    |> Enum.map_join(&String.replace(&1, ~r/ +/, " "))
-    |> String.split(" :: ")
-    |> case do
-      [_, type_string] -> type_string
-      [_, type_name, type_string] -> "#{type_string} (\"#{type_name}\")"
-    end
   end
 end
