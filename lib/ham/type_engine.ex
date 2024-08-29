@@ -5,7 +5,9 @@ defmodule Ham.TypeEngine do
   alias Ham.Utils
 
   @type_kinds [:type, :typep, :opaque]
+  @typep entry_type :: tuple
 
+  @spec match_type(term, entry_type) :: :ok | {:error, [term]}
   def match_type(value, {:type, _, :union, union_types} = union) when is_list(union_types) do
     results =
       Enum.reduce_while(union_types, [], fn type, reason_stacks ->
@@ -27,9 +29,10 @@ defmodule Ham.TypeEngine do
     end
   end
 
-  def match_type(_value, {:type, _, :any, []}) do
-    :ok
-  end
+  def match_type(_value, {:type, _, :any, []}), do: :ok
+
+  # Special case for %{ _ => _ } supported by Erlang
+  def match_type(_value, {:var, _, :_}), do: :ok
 
   def match_type(value, {:type, _, :none, []} = type) do
     type_mismatch(value, type)

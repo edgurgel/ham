@@ -118,4 +118,6 @@ defmodule Ham.Test.Impl do
   def foo_opaque_type, do: :opaque_value
 
   def foo_guarded(_arg), do: [1]
+
+  def map_type_with_underscore, do: %{method: "GET"}
 end

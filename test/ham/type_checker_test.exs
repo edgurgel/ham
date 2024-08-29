@@ -1276,6 +1276,10 @@ defmodule Ham.TypeCheckerTest do
     assert_pass(:nospec_fun, [], :ok)
   end
 
+  test "map with underscore: _ => _" do
+    assert_pass(:map_type_with_underscore, [], %{"method" => "GET", :foo => "bar"})
+  end
+
   defp assert_pass(function_name, args \\ [], return_value) do
     assert :ok = TypeChecker.validate(TestModule, function_name, args, return_value)
 
