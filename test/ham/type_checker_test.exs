@@ -1287,6 +1287,16 @@ defmodule Ham.TypeCheckerTest do
     end
   end
 
+  describe "records" do
+    test "pass" do
+      assert_pass(:record_type, [], {:person, 1})
+    end
+
+    test "fail" do
+      assert_fail(:record_type, [], :ok)
+    end
+  end
+
   test "nospec" do
     assert_pass(:nospec_fun, [], :ok)
   end

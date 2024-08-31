@@ -120,4 +120,6 @@ defmodule Ham.Test.Impl do
   def foo_guarded(_arg), do: [1]
 
   def map_type_with_underscore, do: %{method: "GET"}
+
+  def record_type, do: {:person, "name", 1}
 end
