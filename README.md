@@ -105,6 +105,8 @@ Returned value :atom does not match type Enumerable.t().
 - For anonymous function types in typespecs, only the arity is checked.
 Parameter types and return types are not checked.
 
+- For records we are only checking if it's a tuple and that the first value is the name of the record.
+
 ## License
 
 Copyright 2019 Michał Szewczak

@@ -136,4 +136,6 @@ defmodule Ham.Test.Behaviour do
   @callback foo_guarded(arg) :: [arg] when arg: integer()
 
   @callback map_type_with_underscore() :: :test.req()
+
+  @callback record_type :: :test.person_record()
 end

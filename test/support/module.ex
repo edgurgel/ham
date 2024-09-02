@@ -253,4 +253,7 @@ defmodule Ham.Test.TestModule do
 
   @spec foo_multiple_options :: complex
   def foo_multiple_options, do: {:ok, "a", "b"}
+
+  @spec record_type() :: :test.person_record()
+  def record_type, do: {:person, "name", 1}
 end

@@ -544,6 +544,16 @@ defmodule Ham.TypeEngine do
     match_type(value, type)
   end
 
+  # For now only checking if it's a tuple that the first item is the record name
+  def match_type(value, {:type, _, :record, [{:atom, _, record_name}]})
+      when is_tuple(value) and elem(value, 0) == record_name do
+    :ok
+  end
+
+  def match_type(value, {:type, _, :record, _} = type) do
+    type_mismatch(value, type)
+  end
+
   defp maybe_match_protocol(
          value,
          {:remote_type, _, [{:atom, _, module_name}, {:atom, _, :t}, []]}
