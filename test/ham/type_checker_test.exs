@@ -143,7 +143,7 @@ defmodule Ham.TypeCheckerTest do
 
   describe "string()" do
     test "pass" do
-      assert_pass(:foo_string, 'abc')
+      assert_pass(:foo_string, ~c"abc")
     end
 
     test "fail" do
