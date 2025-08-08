@@ -398,6 +398,10 @@ defmodule Ham.TypeEngine do
     match_type(value, inner_type)
   end
 
+  def match_type(value, {:type, _, :string, []}) do
+    match_type(value, {:type, 0, :list, [{:type, 0, :char, []}]})
+  end
+
   def match_type(value, {:type, _, :binary, []}) do
     match_type(value, {:type, 0, :binary, [{:integer, 0, 0}, {:integer, 0, 8}]})
   end

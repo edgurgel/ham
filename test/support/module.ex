@@ -20,6 +20,8 @@ defmodule Ham.Test.TestModule do
   def foo_reference, do: make_ref()
   @spec foo_struct :: struct
   def foo_struct, do: %URI{}
+  @spec foo_string :: string()
+  def foo_string, do: ~c"abc"
   @spec foo_tuple :: tuple
   def foo_tuple, do: {1, 2, 3}
   @spec foo_float :: float

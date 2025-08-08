@@ -141,6 +141,16 @@ defmodule Ham.TypeCheckerTest do
     end
   end
 
+  describe "string()" do
+    test "pass" do
+      assert_pass(:foo_string, ~c"abc")
+    end
+
+    test "fail" do
+      assert_fail(:foo_string, "abc")
+    end
+  end
+
   describe "tuple()" do
     test "pass empty" do
       assert_pass(:foo_tuple, {})
