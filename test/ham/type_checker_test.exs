@@ -1300,6 +1300,7 @@ defmodule Ham.TypeCheckerTest do
   describe "records" do
     test "pass" do
       assert_pass(:record_type, [], {:person, 1})
+      assert Ham.apply(:test, :new, ["name", 180]) == {:person, "name", 180}
     end
 
     test "fail" do

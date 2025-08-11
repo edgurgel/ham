@@ -549,7 +549,7 @@ defmodule Ham.TypeEngine do
   end
 
   # For now only checking if it's a tuple that the first item is the record name
-  def match_type(value, {:type, _, :record, [{:atom, _, record_name}]})
+  def match_type(value, {:type, _, :record, [{:atom, _, record_name} | _]})
       when is_tuple(value) and elem(value, 0) == record_name do
     :ok
   end
