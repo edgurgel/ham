@@ -745,6 +745,42 @@ defmodule Ham.TypeCheckerTest do
     end
   end
 
+  describe "nonempty_binary()" do
+    test "pass" do
+      assert_pass(:foo_nonempty_binary, "abc")
+    end
+
+    test "fail empty" do
+      assert_fail(:foo_nonempty_binary, "")
+    end
+
+    test "fail bitstring" do
+      assert_fail(:foo_nonempty_binary, <<1::7>>)
+    end
+
+    test "fail other" do
+      assert_fail(:foo_nonempty_binary, 1)
+    end
+  end
+
+  describe "nonempty_bitstring()" do
+    test "pass binary" do
+      assert_pass(:foo_nonempty_bitstring, "abc")
+    end
+
+    test "pass bitstring" do
+      assert_pass(:foo_nonempty_bitstring, <<1::7>>)
+    end
+
+    test "fail empty" do
+      assert_fail(:foo_nonempty_bitstring, <<>>)
+    end
+
+    test "fail other" do
+      assert_fail(:foo_nonempty_bitstring, 1)
+    end
+  end
+
   describe "bool()" do
     test "pass true" do
       assert_pass(:foo_bool, true)

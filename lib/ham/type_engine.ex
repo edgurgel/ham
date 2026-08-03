@@ -410,6 +410,23 @@ defmodule Ham.TypeEngine do
     match_type(value, {:type, 0, :binary, [{:integer, 0, 0}, {:integer, 0, 1}]})
   end
 
+  def match_type(value, {:type, _, :nonempty_binary, []}) when is_binary(value) and value != "" do
+    :ok
+  end
+
+  def match_type(value, {:type, _, :nonempty_binary, []} = type) do
+    type_mismatch(value, type)
+  end
+
+  def match_type(value, {:type, _, :nonempty_bitstring, []})
+      when is_bitstring(value) and bit_size(value) > 0 do
+    :ok
+  end
+
+  def match_type(value, {:type, _, :nonempty_bitstring, []} = type) do
+    type_mismatch(value, type)
+  end
+
   def match_type(value, {:type, _, :bool, []}) do
     match_type(value, {:type, 0, :boolean, []})
   end
@@ -557,6 +574,8 @@ defmodule Ham.TypeEngine do
   def match_type(value, {:type, _, :record, _} = type) do
     type_mismatch(value, type)
   end
+
+  def match_type(_value, _type), do: :ok
 
   defp maybe_match_protocol(
          value,

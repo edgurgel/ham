@@ -54,6 +54,8 @@ defmodule Ham.Test.Impl do
   def foo_as_boolean, do: :ok
   def foo_binary, do: "123"
   def foo_bitstring, do: <<>>
+  def foo_nonempty_binary, do: "abc"
+  def foo_nonempty_bitstring, do: <<1::7>>
   def foo_bool, do: true
   def foo_boolean, do: false
   def foo_byte, do: ?A
