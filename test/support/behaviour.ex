@@ -63,6 +63,8 @@ defmodule Ham.Test.Behaviour do
   @callback foo_as_boolean() :: as_boolean(:ok | nil)
   @callback foo_binary() :: binary()
   @callback foo_bitstring() :: bitstring()
+  @callback foo_nonempty_binary() :: nonempty_binary()
+  @callback foo_nonempty_bitstring() :: nonempty_bitstring()
   @callback foo_bool() :: bool()
   @callback foo_boolean() :: boolean()
   @callback foo_byte() :: byte()

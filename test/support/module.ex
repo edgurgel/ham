@@ -122,6 +122,10 @@ defmodule Ham.Test.TestModule do
   def foo_binary, do: "123"
   @spec foo_bitstring :: bitstring
   def foo_bitstring, do: <<>>
+  @spec foo_nonempty_binary :: nonempty_binary
+  def foo_nonempty_binary, do: "abc"
+  @spec foo_nonempty_bitstring :: nonempty_bitstring
+  def foo_nonempty_bitstring, do: <<1::7>>
   @spec foo_bool :: bool
   def foo_bool, do: true
   @spec foo_boolean :: boolean
